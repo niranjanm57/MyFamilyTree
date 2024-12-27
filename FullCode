@@ -1,0 +1,151 @@
+import java.util.Scanner;
+import java.util.ArrayList;
+import java.util.List;
+class PersonNode {
+    private String name;
+    private String birthDate;
+    private String fatherName;
+    private String motherName;
+    private List<PersonNode> children;
+    public PersonNode(String name, String birthDate, String fatherName, String motherName) {
+        this.name = name;
+        this.birthDate = birthDate;
+        this.fatherName = fatherName;
+        this.motherName = motherName;
+        this.children = new ArrayList<>();
+    }
+    public String getName() {
+        return name;
+    }
+
+    public String getBirthDate() {
+        return birthDate;
+    }
+
+    public String getFatherName() {
+        return fatherName;
+    }
+
+    public String getMotherName() {
+        return motherName;
+    }
+
+    public List<PersonNode> getChildren() {
+        return children;
+    }
+
+    public void addChild(PersonNode child) {
+        children.add(child);
+    }
+}
+class FamilyTree {
+    private PersonNode root;
+    public FamilyTree(String familySurname, String fatherName, String motherName, String fatherFather, String fatherMother, String motherFather, String motherMother) {
+        this.root = new PersonNode(familySurname, "", "", "");
+        PersonNode father = new PersonNode(fatherName, "", fatherFather, fatherMother);
+        PersonNode mother = new PersonNode(motherName, "", motherFather, motherMother);
+        root.addChild(father);
+        root.addChild(mother);
+    }
+    public PersonNode getRoot() {
+        return root;
+    }
+    public void addChild(PersonNode parent, String childName, String birthDate, String fatherName, String motherName) {
+        PersonNode child = new PersonNode(childName, birthDate, fatherName, motherName);
+        parent.addChild(child);
+    }
+    public PersonNode findPerson(PersonNode currentNode, String name) {
+        if (currentNode == null) {
+            return null;
+        }
+        if (currentNode.getName().equals(name)) {
+            return currentNode;
+        }
+
+        for (PersonNode child : currentNode.getChildren()) {
+            PersonNode result = findPerson(child, name);
+            if (result != null) {
+                return result;
+            }
+        }
+        return null;
+    }
+}
+public class MyFamilyTree {
+
+    private static final Scanner scanner = new Scanner(System.in);
+
+    public static void main(String[] args) {
+        System.out.println("Enter the family surname:");
+        String familySurname = scanner.nextLine();
+        System.out.println("Enter the father's name:");
+        String fatherName = scanner.nextLine();
+        System.out.println("Enter the father's father name (Grandfather):");
+        String fatherFather = scanner.nextLine();
+        System.out.println("Enter the father's mother name (Grandmother):");
+        String fatherMother = scanner.nextLine();
+        System.out.println("Enter the mother's name:");
+        String motherName = scanner.nextLine();
+        System.out.println("Enter the mother's father name (Grandfather):");
+        String motherFather = scanner.nextLine();
+        System.out.println("Enter the mother's mother name (Grandmother):");
+        String motherMother = scanner.nextLine();
+        FamilyTree familyTree = new FamilyTree(familySurname, fatherName, motherName, fatherFather, fatherMother, motherFather, motherMother);
+        while (true) {
+            System.out.println("\nDo you want to add a new child? (yes/no)");
+            String choice = scanner.nextLine();
+
+            if (choice.equalsIgnoreCase("no")) {
+                break;
+            }
+
+
+            System.out.println("Enter the name of the parent:");
+            String parentName = scanner.nextLine();
+            PersonNode parent = familyTree.findPerson(familyTree.getRoot(), parentName);
+
+            if (parent == null) {
+                System.out.println("Parent not found! Please enter an existing parent.");
+                continue;
+            }
+
+
+            System.out.println("Enter the name of the child:");
+            String childName = scanner.nextLine();
+            System.out.println("Enter the birth date of the child (YYYY-MM-DD):");
+            String childBirthDate = scanner.nextLine();
+            System.out.println("Enter the father's name:");
+            String childFatherName = scanner.nextLine();
+            System.out.println("Enter the mother's name:");
+            String childMotherName = scanner.nextLine();
+            familyTree.addChild(parent, childName, childBirthDate, childFatherName, childMotherName);
+            System.out.println("Child " + childName + " added to " + parentName);
+        }
+        System.out.println("\nFamily Tree Structure:");
+        printFamilyTree(familyTree.getRoot(), 0);
+
+        scanner.close();
+    }
+    public static void printFamilyTree(PersonNode node, int level) {
+        if (node == null) {
+            return;
+        }
+        for (int i = 0; i < level - 1; i++) {
+            System.out.print("|   ");
+        }
+        if (level > 0) {
+            System.out.print("|-- ");
+        }
+        if (level == 0) {
+            System.out.println(node.getName());
+        } else if (level == 1) {
+            System.out.println(node.getName() + " [Father: " + node.getFatherName() + ", Mother: " + node.getMotherName() + "]");
+        } else {
+            System.out.println(node.getName() + " (" + node.getBirthDate() + ") [Father: " + node.getFatherName() + ", Mother: " + node.getMotherName() + "]");
+        }
+        for (PersonNode child : node.getChildren()) {
+            printFamilyTree(child, level + 1);
+        }
+    }
+
+}
